@@ -7,7 +7,12 @@ require_once 'modules/admin/models/ServerPlugin.php';
 */
 class PluginOnapp extends ServerPlugin
 {
-    public $usesPackageName = false;
+    public $features = array(
+        'packageName' => false,
+        'testConnection' => false,
+        'showNameservers' => true
+    );
+
     /*****************************************************************/
     // function getVariables - required function
     /*****************************************************************/
