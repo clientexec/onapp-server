@@ -27,52 +27,52 @@ class PluginOnapp extends ServerPlugin
 
 
         $variables = array (
-            /*T*/"Name"/*/T*/ => array (
+            lang("Name") => array (
                 "type"        => "hidden",
                 "description" => "Used By CE to show plugin",
                 "value"       => "OnApp"
             ),
-            /*T*/"Description"/*/T*/ => array (
+            lang("Description") => array (
                 "type"        => "hidden",
-                "description" => /*T*/"Description viewable by admin in server settings"/*/T*/,
-                "value"       => /*T*/"OnApp control panel integration"/*/T*/
+                "description" => lang("Description viewable by admin in server settings"),
+                "value"       => lang("OnApp control panel integration")
             ),
-            /*T*/"Server URL"/*/T*/ => array (
+            lang("Server URL") => array (
                 "type"        => "text",
-                "description" => /*T*/"URL to the OnApp server, ending with / (slash)"/*/T*/,
+                "description" => lang("URL to the OnApp server, ending with / (slash)"),
                 "value"       => ""
             ),
-            /*T*/"OnApp 2,1 or higher"/*/T*/ => array (
+            lang("OnApp 2,1 or higher") => array (
                 "type"        => "yesno",
-                "description" => /*T*/"Tick if the OnApp server is using the OnApp version 2.1 or higher"/*/T*/,
+                "description" => lang("Tick if the OnApp server is using the OnApp version 2.1 or higher"),
                 "value"       => ""
             ),
-            /*T*/"Username"/*/T*/ => array (
+            lang("Username") => array (
                 "type"        => "text",
-                "description" => /*T*/"Username used to connect to server"/*/T*/,
+                "description" => lang("Username used to connect to server"),
                 "value"       => ""
             ),
-            /*T*/"Password"/*/T*/ => array (
+            lang("Password") => array (
                 "type"        => "password",
-                "description" => /*T*/"Password used to connect to server"/*/T*/,
+                "description" => lang("Password used to connect to server"),
                 "value"       => "",
                 "encryptable" => true
             ),
 
             // PACKAGE CUSTOM FIELDS
-            /*T*/"VM Label Custom Field"/*/T*/ => array(
+            lang("VM Label Custom Field") => array(
                 "type"        => "text",
-                "description" => /*T*/"Enter the name of the package custom field that will hold the VM label for OnApp."/*/T*/,
+                "description" => lang("Enter the name of the package custom field that will hold the VM label for OnApp."),
                 "value"       => ""
             ),
-            /*T*/"VM Hostname Custom Field"/*/T*/ => array(
+            lang("VM Hostname Custom Field") => array(
                 "type"        => "text",
-                "description" => /*T*/"Enter the name of the package custom field that will hold the VM hostname for OnApp."/*/T*/,
+                "description" => lang("Enter the name of the package custom field that will hold the VM hostname for OnApp."),
                 "value"       => ""
             ),
-            /*T*/"VM Password Custom Field"/*/T*/ => array(
+            lang("VM Password Custom Field") => array(
                 "type"        => "text",
-                "description" => /*T*/"Enter the name of the package custom field that will hold the VM initial root password for OnApp."/*/T*/,
+                "description" => lang("Enter the name of the package custom field that will hold the VM initial root password for OnApp."),
                 "value"       => ""
             ),
 
@@ -80,9 +80,9 @@ class PluginOnapp extends ServerPlugin
 //              not an Onapp API field, but in time we will have multiple onapp installs in multiple geographies.
 //              Can we allow customers to chose which onapp to deploy to *eg: Cloud 1, Dublin: Cloud 2, London, etc)
 
-            /*T*/'package_vars_values'/*/T*/ => array(
+            lang('package_vars_values') => array(
                 'type'        => 'hidden',
-                'description' => /*T*/'VM account parameters'/*/T*/,
+                'description' => lang('VM account parameters'),
                 'value'       => array(
                     // VIRTUAL MACHINE PROPERTIES
                     // Template
@@ -90,8 +90,8 @@ class PluginOnapp extends ServerPlugin
                         'type'        => 'dropdown',
                         'multiple'    => false,
                         'getValues'   => 'getTemplateValues',
-                        'label'       => /*T*/'Template'/*/T*/,
-                        'description' => /*T*/'A Template is a pre-configured OS image that you can build a Virtual Machine on.'/*/T*/,
+                        'label'       => lang('Template'),
+                        'description' => lang('A Template is a pre-configured OS image that you can build a Virtual Machine on.'),
                         'value'       => '',
                     ),
 
@@ -100,8 +100,8 @@ class PluginOnapp extends ServerPlugin
                         'type'        => 'dropdown',
                         'multiple'    => false,
                         'getValues'   => 'getHypervisorValues',
-                        'label'       => /*T*/'Hypervisor'/*/T*/,
-                        'description' => /*T*/'Hypervisors provide CPU, RAM and network resources for your Virtual Machines.'/*/T*/,
+                        'label'       => lang('Hypervisor'),
+                        'description' => lang('Hypervisors provide CPU, RAM and network resources for your Virtual Machines.'),
                         'value'       => '',
                     ),
 
@@ -110,48 +110,48 @@ class PluginOnapp extends ServerPlugin
                     //  RAM
                     'ram' => array(
                         'type'        => 'text',
-                        'label'       => /*T*/'RAM'/*/T*/,
-                        'description' => /*T*/'Amount of RAM assigned in MB.'/*/T*/,
+                        'label'       => lang('RAM'),
+                        'description' => lang('Amount of RAM assigned in MB.'),
                         'value'       => '',
                     ),
 
                     //  CPU Cores
                     'cpu_cores' => array(
                         'type'        => 'text',
-                        'label'       => /*T*/'CPU Cores'/*/T*/,
-                        'description' => /*T*/'Number of CPUs.'/*/T*/,
+                        'label'       => lang('CPU Cores'),
+                        'description' => lang('Number of CPUs.'),
                         'value'       => '',
                     ),
 
                     //  CPU Priority
                     'cpu_priority' => array(
                         'type'        => 'text',
-                        'label'       => /*T*/'CPU Priority'/*/T*/,
-                        'description' => /*T*/'Priority of the CPU in %.'/*/T*/,
+                        'label'       => lang('CPU Priority'),
+                        'description' => lang('Priority of the CPU in %.'),
                         'value'       => '',
                     ),
 
                     //  Primary disk size
                     'primary_disk_size' => array(
                         'type'        => 'text',
-                        'label'       => /*T*/'Primary disk size'/*/T*/,
-                        'description' => /*T*/'Amount of primary disk size in GB.'/*/T*/,
+                        'label'       => lang('Primary disk size'),
+                        'description' => lang('Amount of primary disk size in GB.'),
                         'value'       => '',
                     ),
 
                     //  Swap disk size
                     'swap_disk_size' => array(
                         'type'        => 'text',
-                        'label'       => /*T*/'Swap disk size'/*/T*/,
-                        'description' => /*T*/'Amount of swap disk size in GB.'/*/T*/,
+                        'label'       => lang('Swap disk size'),
+                        'description' => lang('Amount of swap disk size in GB.'),
                         'value'       => '',
                     ),
 
                     //  Build virtual machine automatically
                     'build_virtual_machine' => array(
                         'type'        => 'check',
-                        'label'       => /*T*/'Build virtual machine automatically'/*/T*/,
-                        'description' => /*T*/'Tick to build automatically'/*/T*/,
+                        'label'       => lang('Build virtual machine automatically'),
+                        'description' => lang('Tick to build automatically'),
                         'value'       => '1',
                     ),
 
@@ -162,24 +162,24 @@ class PluginOnapp extends ServerPlugin
                         'type'        => 'dropdown',
                         'multiple'    => false,
                         'getValues'   => 'getPrimaryNetworkValues',
-                        'label'       => /*T*/'Primary network'/*/T*/,
-                        'description' => /*T*/'Primary network for the Virtual Machines.'/*/T*/,
+                        'label'       => lang('Primary network'),
+                        'description' => lang('Primary network for the Virtual Machines.'),
                         'value'       => '',
                     ),
 
                     //  Port Speed
                     'port_speed' => array(
                         'type'        => 'text',
-                        'label'       => /*T*/'Port Speed'/*/T*/,
-                        'description' => /*T*/'Port speed in Mbps. Unlimited if not set.'/*/T*/,
+                        'label'       => lang('Port Speed'),
+                        'description' => lang('Port speed in Mbps. Unlimited if not set.'),
                         'value'       => '',
                     ),
 
                     //  Assign an IP automatically
                     'assign_an_ip' => array(
                         'type'        => 'check',
-                        'label'       => /*T*/'Assign an IP automatically'/*/T*/,
-                        'description' => /*T*/'Tick to assign automatically'/*/T*/,
+                        'label'       => lang('Assign an IP automatically'),
+                        'description' => lang('Tick to assign automatically'),
                         'value'       => '1',
                     ),
 
@@ -190,8 +190,8 @@ class PluginOnapp extends ServerPlugin
                         'type'        => 'dropdown',
                         'multiple'    => false,
                         'getValues'   => 'getUserGroupValues',
-                        'label'       => /*T*/'User Billing Plan or Group'/*/T*/,
-                        'description' => /*T*/'Billing Plan or Group to set prices for resources.'/*/T*/,
+                        'label'       => lang('User Billing Plan or Group'),
+                        'description' => lang('Billing Plan or Group to set prices for resources.'),
                         'value'       => '',
                     ),
 
@@ -200,16 +200,16 @@ class PluginOnapp extends ServerPlugin
                         'type'        => 'dropdown',
                         'multiple'    => true,
                         'getValues'   => 'getUserRolesValues',
-                        'label'       => /*T*/'User Roles'/*/T*/,
-                        'description' => /*T*/'A set of actions that the user will be allowed to perform.'/*/T*/,
+                        'label'       => lang('User Roles'),
+                        'description' => lang('A set of actions that the user will be allowed to perform.'),
                         'value'       => '',
                     ),
                 ),
             ),
 
-            /*T*/"Actions"/*/T*/ => array (
+            lang("Actions") => array (
                 "type"        => "hidden",
-                "description" => /*T*/"Current actions that are active for this plugin per server"/*/T*/,
+                "description" => lang("Current actions that are active for this plugin per server"),
                 "value"       => "Create,Delete,Startup,Reboot,Stop"
                 //"value"       => "Create,Delete,Startup,Reboot,Stop,ShutDown,PowerOff"  //ShutDown & PowerOff do not works very well in OnApp, but Stop do.
             )
