@@ -17,7 +17,8 @@ class PluginOnapp extends ServerPlugin
     // function getVariables - required function
     /*****************************************************************/
 
-    function getVariables(){
+    function getVariables()
+    {
         /* Specification
               itemkey     - used to identify variable in your other functions
               type        - text,textarea,yesno,password,dropdown
@@ -227,17 +228,19 @@ class PluginOnapp extends ServerPlugin
     }
 
     //plugin function called after new account is activated ( approved )
-    function create($args){
+    function create($args)
+    {
         $this->getPluginProperties($args);
 
-        if($args['UserOnAppId'] == ''){
+        if ($args['UserOnAppId'] == '') {
             $this->createUser($args);
         }
 
         $this->createVM($args);
     }
 
-    function getPluginProperties(&$args){
+    function getPluginProperties(&$args)
+    {
         $args['VMServerId']        = '';
         $args['UserOnAppId']       = '';
         $args['UserOnAppLogin']    = '';
@@ -263,19 +266,19 @@ class PluginOnapp extends ServerPlugin
             ."WHERE `CustomerID` = ?) ";
         $result = $this->db->query($query, $args['PluginPropertiesCustomFieldId'], $args['customer']['id']);
 
-        while(list($objectid, $AllPluginProperties) = $result->fetch()){
+        while (list($objectid, $AllPluginProperties) = $result->fetch()) {
             $PluginProperties = unserialize($AllPluginProperties);
 
-            if(isset($PluginProperties['server']['type'])
-              && $PluginProperties['server']['type'] == 'onapp'){
+            if (isset($PluginProperties['server']['type'])
+              && $PluginProperties['server']['type'] == 'onapp') {
                 $args['UserOnAppLogin']    = $PluginProperties['user']['login'];
                 $args['UserOnAppPassword'] = ($PluginProperties['user']['password'] == '')? $PluginProperties['user']['password'] : base64_decode($PluginProperties['user']['password']);
 
-                if(isset($PluginProperties['server']['id'])
-                  && $PluginProperties['server']['id'] == $args['VMServerId']){
+                if (isset($PluginProperties['server']['id'])
+                  && $PluginProperties['server']['id'] == $args['VMServerId']) {
                     $args['UserOnAppId'] = $PluginProperties['user']['id'];
 
-                    if($objectid == $args['package']['id']){
+                    if ($objectid == $args['package']['id']) {
                         $args['VMOnAppId']         = $PluginProperties['vm']['id'];
                         $args['VMOnAppIdentifier'] = $PluginProperties['vm']['identifier'];
 
@@ -287,13 +290,14 @@ class PluginOnapp extends ServerPlugin
         }
     }
 
-    function setPluginProperties(&$args){
-        if(count($args['OnAppPluginProperties']) == 0){
+    function setPluginProperties(&$args)
+    {
+        if (count($args['OnAppPluginProperties']) == 0) {
             $query = "INSERT INTO `object_customField` "
                 ."SET `value` = ?, "
                 ."`objectid` = ?, "
                 ."`customFieldId` = ? ";
-        }else{
+        } else {
             $query = "UPDATE `object_customField` "
                 ."SET `value` = ? "
                 ."WHERE `objectid` = ? "
@@ -316,12 +320,13 @@ class PluginOnapp extends ServerPlugin
         $this->db->query($query, $PluginProperties, $args['package']['id'], $args['PluginPropertiesCustomFieldId']);
     }
 
-    function createUser(&$args){
-        if($args['UserOnAppLogin'] == ''){
+    function createUser(&$args)
+    {
+        if ($args['UserOnAppLogin'] == '') {
             $args['UserOnAppLogin'] = $args['customer']['email'];
         }
 
-        if($args['UserOnAppPassword'] == ''){
+        if ($args['UserOnAppPassword'] == '') {
             $userPackage = new UserPackage($args['package']['id']);
 
             $args['UserOnAppPassword'] = $userPackage->getCustomField($args['server']['variables']['plugin_onapp_VM_Password_Custom_Field'], CUSTOM_FIELDS_FOR_PACKAGE);
@@ -343,12 +348,12 @@ class PluginOnapp extends ServerPlugin
                // This one is previous to 2.1
                ."    <group_id>".$args['package']['variables']['billing_group']."</group_id>\n";
 
-        if(isset($args['package']['variables']['user_roles']) && $args['package']['variables']['user_roles'] != ''){
+        if (isset($args['package']['variables']['user_roles']) && $args['package']['variables']['user_roles'] != '') {
             $user_roles = explode(',', $args['package']['variables']['user_roles']);
 
             $xml .= "    <role_ids type=\"array\">\n";
 
-            foreach($user_roles as $user_role_id){
+            foreach ($user_roles as $user_role_id) {
                 $xml .= "        <role_id>".$user_role_id."</role_id>\n";
             }
 
@@ -369,26 +374,26 @@ class PluginOnapp extends ServerPlugin
 
         $response = NE_Network::curlRequest($this->settings, $url, $xml, $header, true, false, "POST");
 
-        if ($response){
+        if ($response) {
             $response = XmlFunctions::xmlize($response);
         }
 
-        if(isset($response['errors']['#']['error'])){
+        if (isset($response['errors']['#']['error'])) {
             $errors = $response['errors']['#']['error'];
 
             $errormsg = "There were some errors creating the User for the VM:";
 
-            foreach($errors AS $error){
+            foreach ($errors as $error) {
                 $errormsg .= "<br>- ".$error['#'];
             }
 
             CE_Lib::log(4, "plugin_onapp::createUser::error: ".$errormsg);
             throw new CE_Exception($errormsg, 200);
-        }elseif(isset($response['user']['#']['id'][0]['#'])){
+        } elseif (isset($response['user']['#']['id'][0]['#'])) {
             $args['UserOnAppId'] = $response['user']['#']['id'][0]['#'];
 
             $this->setPluginProperties($args);
-        }else{
+        } else {
             $errormsg = "There was an error creating the User for the VM:";
             $errormsg .= "<br>- The server didn't return an id for the user";
 
@@ -397,7 +402,8 @@ class PluginOnapp extends ServerPlugin
         }
     }
 
-    function createVM(&$args){
+    function createVM(&$args)
+    {
         $userPackage = new UserPackage($args['package']['id']);
 
         $Label = $userPackage->getCustomField($args['server']['variables']['plugin_onapp_VM_Label_Custom_Field'], CUSTOM_FIELDS_FOR_PACKAGE);
@@ -406,7 +412,7 @@ class PluginOnapp extends ServerPlugin
 
         $Password = $userPackage->getCustomField($args['server']['variables']['plugin_onapp_VM_Password_Custom_Field'], CUSTOM_FIELDS_FOR_PACKAGE);
 
-        if(!isset($args['package']['variables']['port_speed'])){
+        if (!isset($args['package']['variables']['port_speed'])) {
             $args['package']['variables']['port_speed'] = '';
         }
 
@@ -431,10 +437,10 @@ class PluginOnapp extends ServerPlugin
 
               ."</virtual_machine>\n";
 
-        if($args['server']['variables']['plugin_onapp_OnApp_2,1_or_higher']){
+        if ($args['server']['variables']['plugin_onapp_OnApp_2,1_or_higher']) {
             //ADMIN CREDENTIALS
             $credentials = $args['server']['variables']['plugin_onapp_Username'].":".$args['server']['variables']['plugin_onapp_Password'];
-        }else{
+        } else {
             //USER CREDENTIALS
             $credentials = $args['UserOnAppLogin'].":".$args['UserOnAppPassword'];
         }
@@ -449,33 +455,33 @@ class PluginOnapp extends ServerPlugin
 
         $response = NE_Network::curlRequest($this->settings, $url, $xml, $header, true, false, "POST");
 
-        if ($response){
+        if ($response) {
             $response = XmlFunctions::xmlize($response);
         }
 
-        if(isset($response['errors']['#']['error'])){
+        if (isset($response['errors']['#']['error'])) {
             $errors = $response['errors']['#']['error'];
 
             $errormsg = "There were some errors creating the VM:";
 
-            foreach($errors AS $error){
+            foreach ($errors as $error) {
                 $errormsg .= "<br>- ".$error['#'];
             }
 
             CE_Lib::log(4, "plugin_onapp::createVM::error: ".$errormsg);
             throw new CE_Exception($errormsg, 200);
-        }elseif(isset($response['virtual_machine']['#']['id'][0]['#'])
-          && isset($response['virtual_machine']['#']['identifier'][0]['#'])){
+        } elseif (isset($response['virtual_machine']['#']['id'][0]['#'])
+          && isset($response['virtual_machine']['#']['identifier'][0]['#'])) {
             $args['VMOnAppId']         = $response['virtual_machine']['#']['id'][0]['#'];
             $args['VMOnAppIdentifier'] = $response['virtual_machine']['#']['identifier'][0]['#'];
 
             $this->setPluginProperties($args);
 
-            if($args['server']['variables']['plugin_onapp_OnApp_2,1_or_higher']){
+            if ($args['server']['variables']['plugin_onapp_OnApp_2,1_or_higher']) {
                 // transfer the VM to the new user
                 $this->transferVM($args);
             }
-        }else{
+        } else {
             $errormsg = "There was an error creating the VM:";
             $errormsg .= "<br>- The server didn't return an id for the VM";
 
@@ -484,7 +490,8 @@ class PluginOnapp extends ServerPlugin
         }
     }
 
-    function transferVM(&$args){
+    function transferVM(&$args)
+    {
         $url = $args['server']['variables']['plugin_onapp_Server_URL']."virtual_machines/".$args['VMOnAppId']."/change_owner.xml";
 
         $xml = "<user_id>".$args['UserOnAppId']."</user_id>\n";
@@ -501,34 +508,34 @@ class PluginOnapp extends ServerPlugin
 
         $response = NE_Network::curlRequest($this->settings, $url, $xml, $header, true, false, "POST");
 
-        if ($response){
+        if ($response) {
             $response = XmlFunctions::xmlize($response);
         }
 
-        if(isset($response['errors']['#']['error'])){
+        if (isset($response['errors']['#']['error'])) {
             $errors = $response['errors']['#']['error'];
 
             $errormsg = "There were some errors creating the VM:";
 
-            foreach($errors AS $error){
+            foreach ($errors as $error) {
                 $errormsg .= "<br>- ".$error['#'];
             }
 
             CE_Lib::log(4, "plugin_onapp::createVM::error: ".$errormsg);
             throw new CE_Exception($errormsg, 200);
-        }elseif(isset($response['virtual_machine']['#']['id'][0]['#'])
+        } elseif (isset($response['virtual_machine']['#']['id'][0]['#'])
           && isset($response['virtual_machine']['#']['identifier'][0]['#'])
-          && isset($response['virtual_machine']['#']['user_id'][0]['#'])){
-            if($args['VMOnAppId'] != $response['virtual_machine']['#']['id'][0]['#']
+          && isset($response['virtual_machine']['#']['user_id'][0]['#'])) {
+            if ($args['VMOnAppId'] != $response['virtual_machine']['#']['id'][0]['#']
               || $args['VMOnAppIdentifier'] != $response['virtual_machine']['#']['identifier'][0]['#']
-              || $args['UserOnAppId'] != $response['virtual_machine']['#']['user_id'][0]['#']){
+              || $args['UserOnAppId'] != $response['virtual_machine']['#']['user_id'][0]['#']) {
                 $errormsg = "There was an error transfering the VM";
                 $errormsg .= "<br>- The server returned a VM id or User id that do not match";
 
                 CE_Lib::log(4, "plugin_onapp::transferVM::error: ".$errormsg);
                 throw new CE_Exception($errormsg, 200);
             }
-        }else{
+        } else {
             $errormsg = "There was an error transfering the VM";
             $errormsg .= "<br>- The server didn't return the VM id or User id";
 
@@ -545,50 +552,51 @@ class PluginOnapp extends ServerPlugin
         return $VM_Hostname . ' VM has been deleted.';
     }
 
-    function delete($args){
+    function delete($args)
+    {
         $this->getPluginProperties($args);
 
         $response = $this->getVMdetails($args);
 
         $errormsg = '';
 
-        if(isset($response['virtual_machine']['#'])){
+        if (isset($response['virtual_machine']['#'])) {
             $virtual_machine = $response['virtual_machine']['#'];
 
             // $virtual_machine['id'][0]['#'] => 761
             // $virtual_machine['booted'][0]['#'] => true
             // $virtual_machine['built'][0]['#'] => true
 
-            if($virtual_machine['id'][0]['#'] != $args['VMOnAppId']){
+            if ($virtual_machine['id'][0]['#'] != $args['VMOnAppId']) {
                 $errormsg = "There was an error when trying to delete the VM with ID ".$args['VMOnAppId'].".<br>The VM was not found.";
-            }elseif($virtual_machine['locked'][0]['#'] == 'true'){
+            } elseif ($virtual_machine['locked'][0]['#'] == 'true') {
                 $response = $this->unlockVM($args);
                 $response = $this->getVMdetails($args);
 
                 // We need to validate if the VM is locked or not.
-                if(isset($response['virtual_machine']['#'])){
+                if (isset($response['virtual_machine']['#'])) {
                     $virtual_machine = $response['virtual_machine']['#'];
 
                     // $virtual_machine['id'][0]['#'] => 761
                     // $virtual_machine['booted'][0]['#'] => true
                     // $virtual_machine['built'][0]['#'] => true
 
-                    if($virtual_machine['id'][0]['#'] != $args['VMOnAppId']){
+                    if ($virtual_machine['id'][0]['#'] != $args['VMOnAppId']) {
                         $errormsg = "There was an error when trying to delete the VM with ID ".$args['VMOnAppId'].".<br>The VM was not found.";
-                    }elseif($virtual_machine['locked'][0]['#'] == 'true'){
+                    } elseif ($virtual_machine['locked'][0]['#'] == 'true') {
                         $errormsg = "There was an error when trying to delete the VM with ID ".$args['VMOnAppId'].".<br>The VM is locked.";
                     }
-                }else{
+                } else {
                     // An HTTP 404 is returned if the VM's ID is not found.
                     $errormsg = "There was an error when trying to delete the VM with ID ".$args['VMOnAppId'].".<br>Possibly the VM was not found.";
                 }
             }
-        }else{
+        } else {
             // An HTTP 404 is returned if the VM's ID is not found.
             $errormsg = "There was an error when trying to delete the VM with ID ".$args['VMOnAppId'].".<br>Possibly the VM was not found.";
         }
 
-        if($errormsg != ''){
+        if ($errormsg != '') {
             CE_Lib::log(4, "plugin_onapp::delete::error: ".$errormsg);
             throw new CE_Exception($errormsg, 200);
         }
@@ -596,8 +604,7 @@ class PluginOnapp extends ServerPlugin
         $response = $this->destroyVM($args);
 
         // On successful deletion an HTTP 200 response is returned.
-        if(isset($response['HTTP_status_code']['#'][0]) && $response['HTTP_status_code']['#'][0] == 200){
-
+        if (isset($response['HTTP_status_code']['#'][0]) && $response['HTTP_status_code']['#'][0] == 200) {
             // See if the user has more VMs. If not, delete it.
             // DELETE is slow (takes variable time), and because of that, we can also get here the VM we are deleting.
             // There are some cases that can makes this fail:
@@ -607,7 +614,7 @@ class PluginOnapp extends ServerPlugin
             //$response = $this->getUserVMs($args);
 
             return true;
-        }else{
+        } else {
             // An HTTP 404 is returned if the VM's ID is not found.
             $errormsg = "There was an error when trying to delete the VM with ID ".$args['VMOnAppId'].".<br>Possibly the VM was not found.";
 
@@ -616,25 +623,30 @@ class PluginOnapp extends ServerPlugin
         }
     }
 
-    function suspend($args){
+    function suspend($args)
+    {
     }
 
-    function unsuspend($args){
+    function unsuspend($args)
+    {
     }
 
-    function doSuspend($args){
+    function doSuspend($args)
+    {
         return $this->doStop($args);
     }
 
-    function doUnSuspend($args){
+    function doUnSuspend($args)
+    {
         return $this->doStartup($args);
     }
 
-    function getTemplateValues($serverid){
+    function getTemplateValues($serverid)
+    {
         $xml = "";
 
         require_once 'modules/admin/models/server.php';
-        $server = New Server($serverid);
+        $server = new Server($serverid);
         $pluginVariables = $server->getAllServerPluginVariables($this->user, 'onapp');
 
         $url = $pluginVariables['plugin_onapp_Server_URL']."templates.xml";
@@ -650,22 +662,22 @@ class PluginOnapp extends ServerPlugin
 
         $response = NE_Network::curlRequest($this->settings, $url, $xml, $header, true, false, "GET");
 
-        if ($response){
+        if ($response) {
             $response = XmlFunctions::xmlize($response);
         }
 
         $values = array();
 
         $templates = '';
-        if(isset($response['image-templates']['#']['image-template'])){
+        if (isset($response['image-templates']['#']['image-template'])) {
             $templates = $response['image-templates']['#']['image-template'];
-        }elseif(isset($response['image_templates']['#']['image_template'])){
+        } elseif (isset($response['image_templates']['#']['image_template'])) {
             $templates = $response['image_templates']['#']['image_template'];
         }
 
-        if($templates != ''){
-            foreach($templates AS $template){
-                if($template['#']['state'][0]['#'] == 'active'){
+        if ($templates != '') {
+            foreach ($templates as $template) {
+                if ($template['#']['state'][0]['#'] == 'active') {
                     $values[] = array($template['#']['id'][0]['#'].'-'.$template['#']['operating_system'][0]['#'], $template['#']['label'][0]['#']);
                 }
 
@@ -677,11 +689,12 @@ class PluginOnapp extends ServerPlugin
         return $values;
     }
 
-    function getHypervisorValues($serverid){
+    function getHypervisorValues($serverid)
+    {
         $xml = "";
 
         require_once 'modules/admin/models/server.php';
-        $server = New Server($serverid);
+        $server = new Server($serverid);
         $pluginVariables = $server->getAllServerPluginVariables($this->user, 'onapp');
 
         $url = $pluginVariables['plugin_onapp_Server_URL']."settings/hypervisors.xml";
@@ -697,17 +710,17 @@ class PluginOnapp extends ServerPlugin
 
         $response = NE_Network::curlRequest($this->settings, $url, $xml, $header, true, false, "GET");
 
-        if ($response){
+        if ($response) {
             $response = XmlFunctions::xmlize($response);
         }
 
         $values = array();
 
-        if(isset($response['hypervisors']['#']['hypervisor'])){
+        if (isset($response['hypervisors']['#']['hypervisor'])) {
             $hypervisors = $response['hypervisors']['#']['hypervisor'];
 
-            foreach($hypervisors AS $hypervisor){
-                if($hypervisor['#']['online'][0]['#'] == 'true'){
+            foreach ($hypervisors as $hypervisor) {
+                if ($hypervisor['#']['online'][0]['#'] == 'true') {
                     $values[] = array($hypervisor['#']['id'][0]['#'], $hypervisor['#']['label'][0]['#']);
                 }
 
@@ -757,11 +770,12 @@ class PluginOnapp extends ServerPlugin
         return $values;
     }
 
-    function getPrimaryNetworkValues($serverid){
+    function getPrimaryNetworkValues($serverid)
+    {
         $xml = "";
 
         require_once 'modules/admin/models/server.php';
-        $server = New Server($serverid);
+        $server = new Server($serverid);
         $pluginVariables = $server->getAllServerPluginVariables($this->user, 'onapp');
 
         $url = $pluginVariables['plugin_onapp_Server_URL']."settings/networks.xml";
@@ -777,16 +791,16 @@ class PluginOnapp extends ServerPlugin
 
         $response = NE_Network::curlRequest($this->settings, $url, $xml, $header, true, false, "GET");
 
-        if ($response){
+        if ($response) {
             $response = XmlFunctions::xmlize($response);
         }
 
         $values = array();
 
-        if(isset($response['networks']['#']['network'])){
+        if (isset($response['networks']['#']['network'])) {
             $networks = $response['networks']['#']['network'];
 
-            foreach($networks AS $network){
+            foreach ($networks as $network) {
                 $values[] = array($network['#']['id'][0]['#'], $network['#']['label'][0]['#']);
 
                 //$network['#']['identifier'][0]['#'] // d3ily2rrz33nb9
@@ -796,20 +810,21 @@ class PluginOnapp extends ServerPlugin
         return $values;
     }
 
-    function getUserGroupValues($serverid){
+    function getUserGroupValues($serverid)
+    {
         $xml = "";
 
         require_once 'modules/admin/models/server.php';
-        $server = New Server($serverid);
+        $server = new Server($serverid);
         $pluginVariables = $server->getAllServerPluginVariables($this->user, 'onapp');
 
-        if($pluginVariables['plugin_onapp_OnApp_2,1_or_higher']){
+        if ($pluginVariables['plugin_onapp_OnApp_2,1_or_higher']) {
             $url = $pluginVariables['plugin_onapp_Server_URL']."billing_plans.xml";
             $rGroups[] = "billing-plans";
             $rGroups[] = "billing_plans";
             $rGroup[]  = "billing-plan";
             $rGroup[]  = "billing_plan";
-        }else{
+        } else {
             $url = $pluginVariables['plugin_onapp_Server_URL']."groups.xml";
             $rGroups[] = "groups";
             $rGroup[]  = "group";
@@ -827,22 +842,22 @@ class PluginOnapp extends ServerPlugin
 
         $response = NE_Network::curlRequest($this->settings, $url, $xml, $header, true, false, "GET");
 
-        if ($response){
+        if ($response) {
             $response = XmlFunctions::xmlize($response);
         }
 
         $values = array();
 
         $groups = '';
-        for($iterator = 0; $iterator < count($rGroups); $iterator++){
-            if(isset($response[$rGroups[$iterator]]['#'][$rGroup[$iterator]])){
+        for ($iterator = 0; $iterator < count($rGroups); $iterator++) {
+            if (isset($response[$rGroups[$iterator]]['#'][$rGroup[$iterator]])) {
                 $groups = $response[$rGroups[$iterator]]['#'][$rGroup[$iterator]];
                 break;
             }
         }
 
-        if($groups != ''){
-            foreach($groups AS $group){
+        if ($groups != '') {
+            foreach ($groups as $group) {
                 $values[] = array($group['#']['id'][0]['#'], $group['#']['label'][0]['#']);
 
                 // before 2.1
@@ -853,11 +868,12 @@ class PluginOnapp extends ServerPlugin
         return $values;
     }
 
-    function getUserRolesValues($serverid){
+    function getUserRolesValues($serverid)
+    {
         $xml = "";
 
         require_once 'modules/admin/models/server.php';
-        $server = New Server($serverid);
+        $server = new Server($serverid);
         $pluginVariables = $server->getAllServerPluginVariables($this->user, 'onapp');
 
         $url = $pluginVariables['plugin_onapp_Server_URL']."roles.xml";
@@ -873,16 +889,16 @@ class PluginOnapp extends ServerPlugin
 
         $response = NE_Network::curlRequest($this->settings, $url, $xml, $header, true, false, "GET");
 
-        if ($response){
+        if ($response) {
             $response = XmlFunctions::xmlize($response);
         }
 
         $values = array();
 
-        if(isset($response['roles']['#']['role'])){
+        if (isset($response['roles']['#']['role'])) {
             $roles = $response['roles']['#']['role'];
 
-            foreach($roles AS $role){
+            foreach ($roles as $role) {
                 $values[] = array($role['#']['id'][0]['#'], $role['#']['label'][0]['#']);
 
                 //$role['#']['identifier'][0]['#'] // d3ily2rrz33nb9
@@ -892,7 +908,8 @@ class PluginOnapp extends ServerPlugin
         return $values;
     }
 
-    function getVMdetails($args){
+    function getVMdetails($args)
+    {
         $url = $args['server']['variables']['plugin_onapp_Server_URL']."virtual_machines/".$args['VMOnAppId'].".xml";
         $xml = "";
 
@@ -908,14 +925,15 @@ class PluginOnapp extends ServerPlugin
 
         $response = NE_Network::curlRequest($this->settings, $url, $xml, $header, true, false, "GET");
 
-        if ($response){
+        if ($response) {
             $response = XmlFunctions::xmlize($response);
         }
 
         return $response;
     }
 
-    function unlockVM($args){
+    function unlockVM($args)
+    {
         $url = $args['server']['variables']['plugin_onapp_Server_URL']."virtual_machines/".$args['VMOnAppId']."/unlock";
         $xml = "";
 
@@ -931,14 +949,15 @@ class PluginOnapp extends ServerPlugin
 
         $response = NE_Network::curlRequest($this->settings, $url, $xml, $header, true, false, "POST");
 
-        if ($response){
+        if ($response) {
             $response = XmlFunctions::xmlize($response);
         }
 
         return $response;
     }
 
-    function getUserVMs($args){
+    function getUserVMs($args)
+    {
         $url = $args['server']['variables']['plugin_onapp_Server_URL']."users/".$args['UserOnAppId']."/virtual_machines.xml";
         $xml = "";
 
@@ -954,7 +973,7 @@ class PluginOnapp extends ServerPlugin
 
         $response = NE_Network::curlRequest($this->settings, $url, $xml, $header, true, false, "GET");
 
-        if ($response){
+        if ($response) {
             $response = XmlFunctions::xmlize($response);
         }
 
@@ -964,7 +983,8 @@ class PluginOnapp extends ServerPlugin
     // - Returns HTTP 200 response on successful deletion, or HTTP 404 when a user with the ID specified is not found.
     // - When you delete a user in OnApp, its status becomes DELETED, so a user cannot perform any actions on their VMs, but statistics, backups, and billing details are still available for Administrator.
     // - To erase an already deleted user from the system with all their details, run this function again.
-    function deleteUser($args){
+    function deleteUser($args)
+    {
         $url = $args['server']['variables']['plugin_onapp_Server_URL']."users/".$args['UserOnAppId'].".xml";
         $xml = "";
 
@@ -980,14 +1000,15 @@ class PluginOnapp extends ServerPlugin
 
         $response = NE_Network::curlRequest($this->settings, $url, $xml, $header, true, false, "DELETE");
 
-        if ($response){
+        if ($response) {
             $response = XmlFunctions::xmlize($response);
         }
 
         return $response;
     }
 
-    function destroyVM($args){
+    function destroyVM($args)
+    {
         $url = $args['server']['variables']['plugin_onapp_Server_URL']."virtual_machines/".$args['VMOnAppId'].".xml";
         $xml = "";
 
@@ -1003,7 +1024,7 @@ class PluginOnapp extends ServerPlugin
 
         $response = NE_Network::curlRequest($this->settings, $url, $xml, $header, true, false, "DELETE");
 
-        if ($response){
+        if ($response) {
             $response = XmlFunctions::xmlize($response);
         }
 
@@ -1065,33 +1086,34 @@ class PluginOnapp extends ServerPlugin
     }
     */
 
-    function changeStatus($args, $extraArgs){
+    function changeStatus($args, $extraArgs)
+    {
         $this->getPluginProperties($args);
 
         $response = $this->getVMdetails($args);
 
         $errormsg = '';
 
-        if(isset($response['virtual_machine']['#'])){
+        if (isset($response['virtual_machine']['#'])) {
             $virtual_machine = $response['virtual_machine']['#'];
 
             // $virtual_machine['id'][0]['#'] => 761
             // $virtual_machine['booted'][0]['#'] => true
             // $virtual_machine['built'][0]['#'] => true
 
-            if($virtual_machine['id'][0]['#'] != $args['VMOnAppId']){
+            if ($virtual_machine['id'][0]['#'] != $args['VMOnAppId']) {
                 $errormsg = "There was an error when trying to ".$extraArgs['newAction']." the VM with ID ".$args['VMOnAppId'].".<br>The VM was not found.";
-            }elseif($virtual_machine['locked'][0]['#'] == 'true'){
+            } elseif ($virtual_machine['locked'][0]['#'] == 'true') {
                 $errormsg = "There was an error when trying to ".$extraArgs['newAction']." the VM with ID ".$args['VMOnAppId'].".<br>The VM is locked.";
-            }elseif($virtual_machine['built'][0]['#'] != 'true'){
+            } elseif ($virtual_machine['built'][0]['#'] != 'true') {
                 $errormsg = "There was an error when trying to ".$extraArgs['newAction']." the VM with ID ".$args['VMOnAppId'].".<br>The VM is not built.";
             }
-        }else{
+        } else {
             // An HTTP 404 is returned if the VM's ID is not found.
             $errormsg = "There was an error when trying to ".$extraArgs['newAction']." the VM with ID ".$args['VMOnAppId'].".<br>Possibly the VM was not found.";
         }
 
-        if($errormsg != ''){
+        if ($errormsg != '') {
             CE_Lib::log(4, "plugin_onapp::".$extraArgs['newAction']."::error: ".$errormsg);
             throw new CE_Exception($errormsg, 200);
         }
@@ -1101,11 +1123,12 @@ class PluginOnapp extends ServerPlugin
         return true;
     }
 
-    function changeStatusVM($args, $extraArgs){
+    function changeStatusVM($args, $extraArgs)
+    {
         $url = $args['server']['variables']['plugin_onapp_Server_URL']."virtual_machines/".$args['VMOnAppId']."/".$extraArgs['newAction'].".xml";
         $xml = "";
 
-        if(isset($extraArgs['additionalParams'])){
+        if (isset($extraArgs['additionalParams'])) {
             $xml .= $extraArgs['additionalParams'];
         }
 
@@ -1121,7 +1144,7 @@ class PluginOnapp extends ServerPlugin
 
         $response = NE_Network::curlRequest($this->settings, $url, $xml, $header, true, false, "POST");
 
-        if ($response){
+        if ($response) {
             $response = XmlFunctions::xmlize($response);
         }
 
@@ -1135,14 +1158,14 @@ class PluginOnapp extends ServerPlugin
         $this->getPluginProperties($args);
         $response = $this->getVMdetails($args);
 
-        if(isset($response['virtual_machine']['#'])){
+        if (isset($response['virtual_machine']['#'])) {
             $virtual_machine = $response['virtual_machine']['#'];
 
-            if($virtual_machine['id'][0]['#'] == $args['VMOnAppId']){
+            if ($virtual_machine['id'][0]['#'] == $args['VMOnAppId']) {
                 $actions[] = 'Delete';
 
-                if($virtual_machine['built'][0]['#'] == 'true'){
-                    if($virtual_machine['booted'][0]['#'] == 'true'){
+                if ($virtual_machine['built'][0]['#'] == 'true') {
+                    if ($virtual_machine['booted'][0]['#'] == 'true') {
                         $actions[] = 'Reboot';
                         $actions[] = 'Stop';
 
@@ -1151,14 +1174,14 @@ class PluginOnapp extends ServerPlugin
                         $actions[] = 'ShutDown';
                         $actions[] = 'PowerOff';
                         */
-                    }else{
+                    } else {
                         $actions[] = 'Startup';
                     }
                 }
-            }else{
+            } else {
                 $actions[] = 'Create';
             }
-        }else{
+        } else {
             // An HTTP 404 is returned if the VM's ID is not found.
             $actions[] = 'Create';
         }
@@ -1166,4 +1189,3 @@ class PluginOnapp extends ServerPlugin
         return $actions;
     }
 }
-?>
